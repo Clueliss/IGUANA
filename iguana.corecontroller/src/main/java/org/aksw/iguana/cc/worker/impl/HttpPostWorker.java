@@ -42,7 +42,7 @@ public class HttpPostWorker extends HttpGetWorker {
         } else {
             data.append(query);
         }
-        StringEntity entity = new StringEntity(data.toString());
+        StringEntity entity = new StringEntity(data.toString(), "UTF-8");
         request = new HttpPost(con.getUpdateEndpoint());
         ((HttpPost) request).setEntity(entity);
         request.setHeader("Content-Type", contentType);
