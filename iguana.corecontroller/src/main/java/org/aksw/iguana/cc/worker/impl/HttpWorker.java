@@ -159,8 +159,8 @@ public abstract class HttpWorker extends AbstractRandomQueryChooserWorker {
             handleException(query, COMMON.QUERY_HTTP_FAILURE, e);
         } catch (IOException e) {
             if (requestTimedOut) {
-                LOGGER.warn("Worker[{} : {}]: Reached timeout on query (ID {})\n{}",
-                        this.workerType, this.workerID, queryId, query);
+                LOGGER.warn("Worker[{} : {}]: Reached timeout on query (ID {})\n{}...",
+                        this.workerType, this.workerID, queryId, query.substring(0, Math.min(query.length(), 200)));
                 addResultsOnce(new QueryExecutionStats(queryId, COMMON.QUERY_SOCKET_TIMEOUT, timeOut));
             } else {
                 handleException(query, COMMON.QUERY_UNKNOWN_EXCEPTION, e);
@@ -176,8 +176,8 @@ public abstract class HttpWorker extends AbstractRandomQueryChooserWorker {
     private void handleException(String query, Long cause, Exception e) {
         double duration = durationInMilliseconds(requestStartTime, Instant.now());
         addResultsOnce(new QueryExecutionStats(queryId, cause, duration));
-        LOGGER.warn("Worker[{} : {}]: {} on query (ID {})\n{}",
-                this.workerType, this.workerID, e.getMessage(), queryId, query);
+        LOGGER.warn("Worker[{} : {}]: {} on query (ID {})\n{}...",
+                this.workerType, this.workerID, e.getMessage(), queryId, query.substring(0, Math.min(query.length(), 200)));
         closeClient();
         initClient();
     }
