@@ -172,7 +172,7 @@ public abstract class AbstractWorker implements Worker {
 				LOGGER.error("Worker[{{}} : {{}}] : ERROR with query: {{}}", this.workerType, this.workerID,
 						query.toString());
 			}
-			//this.executedQueries++;
+			this.executedQueries++;
 		}
 		LOGGER.info("Stopping Worker[{{}} : {{}}].", this.workerType, this.workerID);
 	}
@@ -221,7 +221,7 @@ public abstract class AbstractWorker implements Worker {
 			// Add extra Meta Key, worker ID and worker Type
 			result.put(COMMON.EXTRA_META_KEY, this.extra);
 			setResults(result);
-			executedQueries++;
+			//executedQueries++;
 
 			//
 			if(getNoOfQueries() > 0 && getExecutedQueries() % getNoOfQueries() == 0 ){
