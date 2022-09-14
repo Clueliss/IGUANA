@@ -187,35 +187,40 @@ public abstract class HttpWorker extends AbstractRandomQueryChooserWorker {
         boolean responseCodeOK = checkResponseStatus();
         if (responseCodeOK) { // response status is OK (200)
             // get content type header
-            HttpEntity httpResponse = response.getEntity();
-            Header contentTypeHeader = new BasicHeader(httpResponse.getContentType().getName(), httpResponse.getContentType().getValue());
-            // get content stream
-            try (InputStream inputStream = httpResponse.getContent()) {
-                // read content stream
-                //Stream in resultProcessor, return length, set string in StringBuilder.
-                ByteArrayOutputStream responseBody = new ByteArrayOutputStream();
-                long length = resultProcessor.readResponse(inputStream, responseBody);
-                tmpExecutedQueries++;
-                // check if such a result was already parsed and is cached
-                double duration = durationInMilliseconds(requestStartTime, Instant.now());
-                synchronized (this) {
-                    QueryResultHashKey resultCacheKey = new QueryResultHashKey(queryId, length);
-                    if (processedResults.containsKey(resultCacheKey)) {
-                        LOGGER.debug("found result cache key {} ", resultCacheKey);
-                        Long preCalculatedResultSize = processedResults.get(resultCacheKey);
-                        addResultsOnce(new QueryExecutionStats(queryId, COMMON.QUERY_SUCCESS, duration, preCalculatedResultSize));
-                    } else {
-                        // otherwise: parse it. The parsing result is cached for the next time.
-                        if (!this.endSignal) {
-                            resultProcessorService.submit(new HttpResultProcessor(this, queryId, duration, contentTypeHeader, responseBody, length));
-                            resultsSaved = true;
+            if (response.getStatusLine().getStatusCode() == 200) {
+                HttpEntity httpResponse = response.getEntity();
+                Header contentTypeHeader = new BasicHeader(httpResponse.getContentType().getName(), httpResponse.getContentType().getValue());
+
+                // get content stream
+                try (InputStream inputStream = httpResponse.getContent()) {
+                    // read content stream
+                    //Stream in resultProcessor, return length, set string in StringBuilder.
+                    ByteArrayOutputStream responseBody = new ByteArrayOutputStream();
+                    long length = resultProcessor.readResponse(inputStream, responseBody);
+                    tmpExecutedQueries++;
+                    // check if such a result was already parsed and is cached
+                    double duration = durationInMilliseconds(requestStartTime, Instant.now());
+                    synchronized (this) {
+                        QueryResultHashKey resultCacheKey = new QueryResultHashKey(queryId, length);
+                        if (processedResults.containsKey(resultCacheKey)) {
+                            LOGGER.debug("found result cache key {} ", resultCacheKey);
+                            Long preCalculatedResultSize = processedResults.get(resultCacheKey);
+                            addResultsOnce(new QueryExecutionStats(queryId, COMMON.QUERY_SUCCESS, duration, preCalculatedResultSize));
+                        } else {
+                            // otherwise: parse it. The parsing result is cached for the next time.
+                            if (!this.endSignal) {
+                                resultProcessorService.submit(new HttpResultProcessor(this, queryId, duration, contentTypeHeader, responseBody, length));
+                                resultsSaved = true;
+                            }
                         }
                     }
+                } catch (IOException | TimeoutException e) {
+                    double duration = durationInMilliseconds(requestStartTime, Instant.now());
+                    addResultsOnce(new QueryExecutionStats(queryId, COMMON.QUERY_HTTP_FAILURE, duration));
                 }
-
-            } catch (IOException | TimeoutException e) {
+            } else {
                 double duration = durationInMilliseconds(requestStartTime, Instant.now());
-                addResultsOnce(new QueryExecutionStats(queryId, COMMON.QUERY_HTTP_FAILURE, duration));
+                addResultsOnce(new QueryExecutionStats(queryId, COMMON.QUERY_SUCCESS, duration, 0));
             }
         }
     }
