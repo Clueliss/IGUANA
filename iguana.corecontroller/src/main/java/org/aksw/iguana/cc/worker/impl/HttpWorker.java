@@ -118,7 +118,7 @@ public abstract class HttpWorker extends AbstractRandomQueryChooserWorker {
 
     boolean checkResponseStatus() {
         int responseCode = response.getStatusLine().getStatusCode();
-        if (responseCode == 200) {
+        if (responseCode >= 200 && responseCode < 300) {
             return true;
         } else {
             double duration = durationInMilliseconds(requestStartTime, Instant.now());
