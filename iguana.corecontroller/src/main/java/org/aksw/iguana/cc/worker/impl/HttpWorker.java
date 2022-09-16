@@ -5,7 +5,7 @@ import org.aksw.iguana.cc.lang.LanguageProcessor;
 import org.aksw.iguana.cc.lang.impl.SPARQLLanguageProcessor;
 import org.aksw.iguana.cc.model.QueryExecutionStats;
 import org.aksw.iguana.cc.model.QueryResultHashKey;
-import org.aksw.iguana.cc.worker.AbstractRandomQueryChooserWorker;
+import org.aksw.iguana.cc.worker.AbstractLinearQueryChooserWorker;
 import org.aksw.iguana.commons.annotation.Nullable;
 import org.aksw.iguana.commons.constants.COMMON;
 import org.apache.http.Header;
@@ -33,7 +33,7 @@ import static org.aksw.iguana.commons.time.TimeUtils.durationInMilliseconds;
 /**
  * Abstract HTTP worker
  */
-public abstract class HttpWorker extends AbstractRandomQueryChooserWorker {
+public abstract class HttpWorker extends AbstractLinearQueryChooserWorker {
 
 
     protected final ExecutorService resultProcessorService = Executors.newFixedThreadPool(5);
