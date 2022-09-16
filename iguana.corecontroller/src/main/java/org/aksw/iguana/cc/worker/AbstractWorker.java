@@ -208,7 +208,7 @@ public abstract class AbstractWorker implements Worker {
 
 	public synchronized void addResults(QueryExecutionStats results)
 	{
-		if (!this.endSignal && !hasExecutedNoOfQueryMixes(this.endAtNOQM)) {
+		//if (!this.endSignal && !hasExecutedNoOfQueryMixes(this.endAtNOQM)) {
 			// create Properties store it in List
 			Properties result = new Properties();
 			result.setProperty(COMMON.EXPERIMENT_TASK_ID_KEY, this.taskID);
@@ -227,7 +227,7 @@ public abstract class AbstractWorker implements Worker {
 			if(getNoOfQueries() > 0 && getExecutedQueries() % getNoOfQueries() == 0 ){
 				LOGGER.info("Worker executed {} queryMixes", getExecutedQueries()*1.0/getNoOfQueries());
 			}
-		}
+		//}
 	}
 
 	protected synchronized void setResults(Properties result) {
