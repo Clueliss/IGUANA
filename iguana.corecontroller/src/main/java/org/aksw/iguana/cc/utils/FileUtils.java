@@ -1,5 +1,7 @@
 package org.aksw.iguana.cc.utils;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -87,10 +89,16 @@ public class FileUtils {
 	}
 
 	public static int getHashcodeFromFileContent(String filepath) {
+		var hcb = new HashCodeBuilder();
+
 		int hashcode;
-		try {
-			String fileContents = readFile(filepath);
-			hashcode = Math.abs(fileContents.hashCode());
+		try (var f = new BufferedReader(new FileReader(filepath))) {
+			String l;
+			while ((l = f.readLine()) != null) {
+				hcb.append(l);
+			}
+
+			hashcode = Math.abs(hcb.toHashCode());
 		} catch (IOException e) {
 			hashcode = 0;
 		}
